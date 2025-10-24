@@ -6,8 +6,6 @@ Aplikasi sederhana untuk upload dan download file menggunakan Node.js, Express, 
 
 - ✅ Upload file tanpa batas ukuran
 - ✅ Download file yang telah diupload
-- ✅ Hapus file
-- ✅ Pencarian file
 - ✅ Interface yang responsive dan menarik
 - ✅ Drag & drop upload
 - ✅ Progress bar saat upload
@@ -68,15 +66,12 @@ files/
 - **Download Page**: http://localhost:8100/download
   - Lihat daftar semua file yang telah diupload
   - Download file
-  - Hapus file
-  - Pencarian file
 
 ## API Endpoints
 
 - `POST /api/upload` - Upload file
 - `GET /api/files` - Mendapatkan daftar file
 - `GET /api/download/:filename` - Download file
-- `DELETE /api/delete/:filename` - Hapus file
 
 ## Docker Commands
 

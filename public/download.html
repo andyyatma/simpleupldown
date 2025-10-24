@@ -84,21 +84,6 @@
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
         }
 
-        .search-box {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1em;
-            margin-bottom: 20px;
-            transition: border-color 0.3s ease;
-        }
-
-        .search-box:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
         .file-list {
             display: grid;
             gap: 15px;
@@ -222,8 +207,6 @@
                 <button id="refreshBtn" class="btn">🔄 Refresh</button>
             </div>
 
-            <input type="text" id="searchBox" class="search-box" placeholder="🔍 Cari file...">
-
             <div id="message" class="message"></div>
 
             <div id="loadingState" class="loading">
@@ -242,8 +225,6 @@
     </div>
 
     <script>
-        let allFiles = [];
-
         // Format ukuran file
         function formatFileSize(bytes) {
             if (bytes === 0) return '0 Bytes';
@@ -293,8 +274,7 @@
                 loadingState.style.display = 'none';
 
                 if (data.success && data.files.length > 0) {
-                    allFiles = data.files;
-                    displayFiles(allFiles);
+                    displayFiles(data.files);
                     fileList.style.display = 'block';
                 } else {
                     emptyState.style.display = 'block';
@@ -326,9 +306,6 @@
                     <div class="file-actions">
                         <button onclick="downloadFile('${file.filename}', '${file.originalName}')" class="btn btn-success">
                             💾 Download
-                        </button>
-                        <button onclick="deleteFile('${file.filename}', '${file.originalName}')" class="btn btn-danger">
-                            🗑️ Hapus
                         </button>
                     </div>
                 `;
@@ -364,42 +341,7 @@
             }
         }
 
-        // Hapus file
-        async function deleteFile(filename, originalName) {
-            if (!confirm(`Apakah Anda yakin ingin menghapus file "${originalName}"?`)) {
-                return;
-            }
-
-            try {
-                const response = await fetch(`/api/delete/${filename}`, {
-                    method: 'DELETE'
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    showMessage(`File "${originalName}" berhasil dihapus`, 'success');
-                    loadFiles(); // Reload file list
-                } else {
-                    showMessage('Error: ' + data.message, 'error');
-                }
-            } catch (error) {
-                showMessage('Terjadi kesalahan saat menghapus file', 'error');
-                console.error('Error:', error);
-            }
-        }
-
-        // Filter file berdasarkan pencarian
-        function filterFiles() {
-            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
-            const filteredFiles = allFiles.filter(file => 
-                file.originalName.toLowerCase().includes(searchTerm)
-            );
-            displayFiles(filteredFiles);
-        }
-
         // Event listeners
-        document.getElementById('searchBox').addEventListener('input', filterFiles);
         document.getElementById('refreshBtn').addEventListener('click', loadFiles);
 
         // Load files saat halaman dimuat

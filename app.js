@@ -129,36 +129,6 @@ app.get('/api/download/:filename', (req, res) => {
     }
 });
 
-// API untuk menghapus file
-app.delete('/api/delete/:filename', (req, res) => {
-    try {
-        const filename = req.params.filename;
-        const filePath = path.join(__dirname, 'uploads', filename);
-
-        // Cek apakah file ada
-        if (!fs.existsSync(filePath)) {
-            return res.status(404).json({
-                success: false,
-                message: 'File tidak ditemukan'
-            });
-        }
-
-        // Hapus file
-        fs.unlinkSync(filePath);
-
-        res.json({
-            success: true,
-            message: 'File berhasil dihapus'
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Error saat menghapus file',
-            error: error.message
-        });
-    }
-});
-
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server berjalan di http://localhost:${PORT}`);
