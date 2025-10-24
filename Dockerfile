@@ -13,17 +13,21 @@ RUN npm install
 # Copy semua file aplikasi
 COPY . .
 
-# Buat direktori uploads
-RUN mkdir -p uploads
+# Buat direktori uploads dan set permission
+RUN mkdir -p uploads && chmod 755 uploads
 
 # Expose port 8100
 EXPOSE 8100
 
-# Set user non-root untuk keamanan
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
-RUN chown -R nextjs:nodejs /app
-USER nextjs
+# Set user dan group yang tepat untuk kompatibilitas
+RUN addgroup -g 1001 -S appgroup
+RUN adduser -S appuser -u 1001 -G appgroup
+
+# Set ownership untuk direktori kerja
+RUN chown -R appuser:appgroup /app
+
+# Switch ke user non-root
+USER appuser
 
 # Command untuk menjalankan aplikasi
 CMD ["npm", "start"]

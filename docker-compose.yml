@@ -6,6 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: file-upload-download-app
+    user: "1001:1001"
     ports:
       - "8100:8100"
     volumes:
