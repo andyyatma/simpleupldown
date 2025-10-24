@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download File</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .navigation {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            margin-bottom: 20px;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .file-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .file-item {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+            word-break: break-all;
+        }
+
+        .file-meta {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .loading::after {
+            content: '';
+            animation: dots 2s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        .empty-state .icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        @media (max-width: 768px) {
+            .file-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .file-actions {
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📥 Download File</h1>
+            <p>Kelola dan download file yang telah diupload</p>
+        </div>
+
+        <div class="content">
+            <div class="navigation">
+                <a href="/" class="btn btn-secondary">📤 Halaman Upload</a>
+                <button id="refreshBtn" class="btn">🔄 Refresh</button>
+            </div>
+
+            <input type="text" id="searchBox" class="search-box" placeholder="🔍 Cari file...">
+
+            <div id="message" class="message"></div>
+
+            <div id="loadingState" class="loading">
+                Memuat daftar file
+            </div>
+
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="icon">📁</div>
+                <h3>Belum ada file</h3>
+                <p>Silakan upload file terlebih dahulu di halaman upload</p>
+                <a href="/" class="btn" style="margin-top: 20px;">📤 Upload File</a>
+            </div>
+
+            <div id="fileList" class="file-list" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        let allFiles = [];
+
+        // Format ukuran file
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Format tanggal
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Tampilkan pesan
+        function showMessage(text, type) {
+            const message = document.getElementById('message');
+            message.textContent = text;
+            message.className = `message ${type}`;
+            message.style.display = 'block';
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 5000);
+        }
+
+        // Load daftar file
+        async function loadFiles() {
+            const loadingState = document.getElementById('loadingState');
+            const emptyState = document.getElementById('emptyState');
+            const fileList = document.getElementById('fileList');
+
+            loadingState.style.display = 'block';
+            emptyState.style.display = 'none';
+            fileList.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/files');
+                const data = await response.json();
+
+                loadingState.style.display = 'none';
+
+                if (data.success && data.files.length > 0) {
+                    allFiles = data.files;
+                    displayFiles(allFiles);
+                    fileList.style.display = 'block';
+                } else {
+                    emptyState.style.display = 'block';
+                }
+            } catch (error) {
+                loadingState.style.display = 'none';
+                showMessage('Error saat memuat daftar file', 'error');
+                console.error('Error:', error);
+            }
+        }
+
+        // Tampilkan file
+        function displayFiles(files) {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+
+            files.forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                
+                fileItem.innerHTML = `
+                    <div class="file-info">
+                        <div class="file-name">${file.originalName}</div>
+                        <div class="file-meta">
+                            📏 ${formatFileSize(file.size)} • 
+                            📅 ${formatDate(file.uploadDate)}
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <button onclick="downloadFile('${file.filename}', '${file.originalName}')" class="btn btn-success">
+                            💾 Download
+                        </button>
+                        <button onclick="deleteFile('${file.filename}', '${file.originalName}')" class="btn btn-danger">
+                            🗑️ Hapus
+                        </button>
+                    </div>
+                `;
+
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        // Download file
+        async function downloadFile(filename, originalName) {
+            try {
+                const response = await fetch(`/api/download/${filename}`);
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = originalName;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    showMessage(`File "${originalName}" berhasil didownload`, 'success');
+                } else {
+                    const errorData = await response.json();
+                    showMessage('Error: ' + errorData.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Terjadi kesalahan saat download file', 'error');
+                console.error('Error:', error);
+            }
+        }
+
+        // Hapus file
+        async function deleteFile(filename, originalName) {
+            if (!confirm(`Apakah Anda yakin ingin menghapus file "${originalName}"?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/delete/${filename}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage(`File "${originalName}" berhasil dihapus`, 'success');
+                    loadFiles(); // Reload file list
+                } else {
+                    showMessage('Error: ' + data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Terjadi kesalahan saat menghapus file', 'error');
+                console.error('Error:', error);
+            }
+        }
+
+        // Filter file berdasarkan pencarian
+        function filterFiles() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            const filteredFiles = allFiles.filter(file => 
+                file.originalName.toLowerCase().includes(searchTerm)
+            );
+            displayFiles(filteredFiles);
+        }
+
+        // Event listeners
+        document.getElementById('searchBox').addEventListener('input', filterFiles);
+        document.getElementById('refreshBtn').addEventListener('click', loadFiles);
+
+        // Load files saat halaman dimuat
+        loadFiles();
+    </script>
+</body>
+</html>
