@@ -314,31 +314,20 @@
             });
         }
 
-        // Download file
-        async function downloadFile(filename, originalName) {
-            try {
-                const response = await fetch(`/api/download/${filename}`);
-                
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = originalName;
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
-                    
-                    showMessage(`File "${originalName}" berhasil didownload`, 'success');
-                } else {
-                    const errorData = await response.json();
-                    showMessage('Error: ' + errorData.message, 'error');
-                }
-            } catch (error) {
-                showMessage('Terjadi kesalahan saat download file', 'error');
-                console.error('Error:', error);
-            }
+        // Download file — use a direct navigation/link so the browser streams the file
+        function downloadFile(filename, originalName) {
+            // Create temporary link that points to the download endpoint.
+            // Let the browser handle streaming the response instead of loading it into JS memory.
+            const a = document.createElement('a');
+            a.href = `/api/download/${filename}`;
+            // Setting download helps some browsers use the provided filename, but server Content-Disposition is authoritative
+            a.download = originalName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            // We can't reliably detect completion from JS when using direct navigation, so show a start message.
+            showMessage(`Download untuk \"${originalName}\" dimulai`, 'success');
         }
 
         // Event listeners
