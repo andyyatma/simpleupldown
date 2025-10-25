@@ -4,12 +4,15 @@ Aplikasi sederhana untuk upload dan download file menggunakan Node.js, Express, 
 
 ## Fitur
 
-- ✅ Upload file tanpa batas ukuran
-- ✅ Download file yang telah diupload
+- ✅ Upload file hingga 100GB
+- ✅ Download file dengan resume support (Range requests)
+- ✅ Optimasi khusus untuk file gigabytes
+- ✅ Concurrent access untuk multiple users
 - ✅ Interface yang responsive dan menarik
 - ✅ Drag & drop upload
 - ✅ Progress bar saat upload
 - ✅ Docker support dengan volume mounting
+- ✅ Timeout panjang untuk file besar (30 menit)
 
 ## Teknologi
 
@@ -61,11 +64,13 @@ files/
 - **Upload Page**: http://localhost:8100
   - Upload file dengan drag & drop atau klik
   - Progress bar saat upload
-  - Support semua jenis file tanpa batas ukuran
+  - Support file hingga 100GB
+  - Optimasi untuk file gigabytes
 
 - **Download Page**: http://localhost:8100/download
   - Lihat daftar semua file yang telah diupload
-  - Download file
+  - Download file dengan resume support
+  - Optimasi streaming untuk file besar
 
 ## API Endpoints
 
